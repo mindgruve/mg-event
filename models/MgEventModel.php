@@ -81,6 +81,8 @@ class MgEventModel
         add_action(self::$taxonomy . '_edit_form_fields', array('MgEventModel', 'editTaxonomyMetaFields'), 10, 2);
         add_action('edited_' . self::$taxonomy, array('MgEventModel', 'saveTaxonomyMetaFields'), 10, 2);
         add_action('create_' . self::$taxonomy, array('MgEventModel', 'saveTaxonomyMetaFields'), 10, 2);
+        add_filter('manage_mg_event_posts_columns', array('MgEventModel', 'addAdminColumns'));
+        add_filter('manage_mg_event_posts_custom_column', array('MgEventModel', 'getAdminColumn'), 10, 2);
     }
 
     /* DEFINITION */
@@ -921,5 +923,43 @@ class MgEventModel
         }
 
         return $return;
+    }
+    
+    public static function addAdminColumns($columns)
+    {
+        $original = array(
+            'cb'             => $columns['cb'],
+            'title'          => $columns['title'],
+            'start_date'     => 'Start Date',
+            'featured'       => 'Featured',
+            'featured_image' => 'Image',
+        );
+
+        return $original;
+    }
+
+    public static function getAdminColumn($column, $postId)
+    {
+        switch ($column) {
+            case 'start_date' :
+
+				$startDateUnix = get_post_meta($postId, 'start_date', true);
+				$startDate = $startDateUnix ? date('m/d/Y', intval($startDateUnix)) : '';
+				echo $startDate;
+                break;
+            case 'featured':
+            
+            	$featured = get_post_meta($postId, 'event_featured', true);
+            	if($featured == true) {
+            		echo "Yes";
+            	}
+                break;
+            case 'featured_image':
+                if (has_post_thumbnail($postId)) {
+                    echo get_the_post_thumbnail($postId, array(64, 64));
+                }
+
+                break;
+        }
     }
 }
