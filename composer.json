@@ -1,6 +1,7 @@
 {
     "name": "mindgruve/mg-events",
     "description": "WordPress Plugin to provide events",
+    "type": "wordpress-plugin",
     "license": "MIT",
     "authors": [
         {
