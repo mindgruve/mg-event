@@ -37,6 +37,7 @@ class MgEventModel
         'end_time',
         'donate_url',
         'email_recipient',
+        'featured',
     );
 
     private static $postTypeName = 'Events';
@@ -46,6 +47,7 @@ class MgEventModel
 
     private static $locationMetaBoxTitle = 'Location';
     private static $datesMetaBoxTitle = 'Date Range';
+    private static $featuredMetaBoxTitle = 'Featured?';
     private static $timesMetaBoxTitle = 'Display Times';
     private static $donateMetaBoxTitle = 'Extra Information';
     private static $typeMetaBoxTitle = 'Type of Event';
@@ -75,10 +77,10 @@ class MgEventModel
         add_action('admin_notices', array('MgEventModel', 'handleErrorsDisplay'));
         add_action('save_post', array('MgEventModel', 'handleMetaBoxSubmit'));
         add_action('admin_menu', array('MgEventModel', 'addOptionsPage'));
-        add_action( self::$taxonomy . '_add_form_fields', array('MgEventModel', 'addTaxonomyMetaFields'), 10, 2 );
-        add_action( self::$taxonomy . '_edit_form_fields',  array('MgEventModel', 'editTaxonomyMetaFields'), 10, 2 );
-        add_action( 'edited_' . self::$taxonomy, array('MgEventModel', 'saveTaxonomyMetaFields'), 10, 2 );
-        add_action( 'create_' . self::$taxonomy, array('MgEventModel', 'saveTaxonomyMetaFields'), 10, 2 );
+        add_action(self::$taxonomy . '_add_form_fields', array('MgEventModel', 'addTaxonomyMetaFields'), 10, 2);
+        add_action(self::$taxonomy . '_edit_form_fields', array('MgEventModel', 'editTaxonomyMetaFields'), 10, 2);
+        add_action('edited_' . self::$taxonomy, array('MgEventModel', 'saveTaxonomyMetaFields'), 10, 2);
+        add_action('create_' . self::$taxonomy, array('MgEventModel', 'saveTaxonomyMetaFields'), 10, 2);
     }
 
     /* DEFINITION */
@@ -176,7 +178,7 @@ class MgEventModel
         $t_id = $term->term_id;
 
         // retrieve the existing value(s) for this meta field. This returns an array
-        $icon_html = get_option('taxonomy_'. $t_id  . '_icon_html');
+        $icon_html = get_option('taxonomy_' . $t_id . '_icon_html');
 
         echo '<tr class="form-field">
             <th scope="row" valign="top"><label for="icon_html">Icon HTML</label></th>
@@ -190,7 +192,7 @@ class MgEventModel
     public static function saveTaxonomyMetaFields($term_id)
     {
         if (isset($_POST['icon_html'])) {
-            update_option('taxonomy_' . $term_id .'_icon_html' , stripslashes($_POST['icon_html']));
+            update_option('taxonomy_' . $term_id . '_icon_html', stripslashes($_POST['icon_html']));
         }
     }
 
@@ -199,7 +201,11 @@ class MgEventModel
         $nonceName  = 'mg_event_options_box';
         $optionName = 'mg_event_policy_pdf';
 
-        if (isset($_POST[$nonceName]) && isset($_POST[$optionName]) && wp_verify_nonce($_POST[$nonceName],plugin_basename(__FILE__))) {
+        if (isset($_POST[$nonceName]) && isset($_POST[$optionName]) && wp_verify_nonce(
+                $_POST[$nonceName],
+                plugin_basename(__FILE__)
+            )
+        ) {
             update_option($optionName, $_POST[$optionName]);
         }
 
@@ -230,9 +236,19 @@ class MgEventModel
             'high'
         );
 
-        // add dates box
+        // add featured box
         add_meta_box(
             'dates_box',
+            __(self::$featuredMetaBoxTitle),
+            array('MgEventModel', 'featuredBoxContent'),
+            self::$postType,
+            'side',
+            'core'
+        );
+
+        // add dates box
+        add_meta_box(
+            'featured_box',
             __(self::$datesMetaBoxTitle),
             array('MgEventModel', 'datesBoxContent'),
             self::$postType,
@@ -283,47 +299,65 @@ class MgEventModel
     {
 
         // get meta values
-        $venue       = isset($_SESSION[self::$postType]['post_data']['venue']) ? stripslashes($_SESSION[self::$postType]['post_data']['venue']) : get_post_meta(
+        $venue       = isset($_SESSION[self::$postType]['post_data']['venue']) ? stripslashes(
+            $_SESSION[self::$postType]['post_data']['venue']
+        ) : get_post_meta(
             $post->ID,
             'venue',
             true
         );
-        $address1    = isset($_SESSION[self::$postType]['post_data']['address1']) ? stripslashes($_SESSION[self::$postType]['post_data']['address1']) : get_post_meta(
+        $address1    = isset($_SESSION[self::$postType]['post_data']['address1']) ? stripslashes(
+            $_SESSION[self::$postType]['post_data']['address1']
+        ) : get_post_meta(
             $post->ID,
             'address1',
             true
         );
-        $address2    = isset($_SESSION[self::$postType]['post_data']['address2']) ? stripslashes($_SESSION[self::$postType]['post_data']['address2']) : get_post_meta(
+        $address2    = isset($_SESSION[self::$postType]['post_data']['address2']) ? stripslashes(
+            $_SESSION[self::$postType]['post_data']['address2']
+        ) : get_post_meta(
             $post->ID,
             'address2',
             true
         );
-        $city        = isset($_SESSION[self::$postType]['post_data']['city']) ? stripslashes($_SESSION[self::$postType]['post_data']['city']) : get_post_meta(
+        $city        = isset($_SESSION[self::$postType]['post_data']['city']) ? stripslashes(
+            $_SESSION[self::$postType]['post_data']['city']
+        ) : get_post_meta(
             $post->ID,
             'city',
             true
         );
-        $region      = isset($_SESSION[self::$postType]['post_data']['region']) ? stripslashes($_SESSION[self::$postType]['post_data']['region']) : get_post_meta(
+        $region      = isset($_SESSION[self::$postType]['post_data']['region']) ? stripslashes(
+            $_SESSION[self::$postType]['post_data']['region']
+        ) : get_post_meta(
             $post->ID,
             'region',
             true
         );
-        $country     = isset($_SESSION[self::$postType]['post_data']['country']) ? stripslashes($_SESSION[self::$postType]['post_data']['country']) : get_post_meta(
+        $country     = isset($_SESSION[self::$postType]['post_data']['country']) ? stripslashes(
+            $_SESSION[self::$postType]['post_data']['country']
+        ) : get_post_meta(
             $post->ID,
             'country',
             true
         );
-        $postal_code = isset($_SESSION[self::$postType]['post_data']['postal_code']) ? stripslashes($_SESSION[self::$postType]['post_data']['postal_code']) : get_post_meta(
+        $postal_code = isset($_SESSION[self::$postType]['post_data']['postal_code']) ? stripslashes(
+            $_SESSION[self::$postType]['post_data']['postal_code']
+        ) : get_post_meta(
             $post->ID,
             'postal_code',
             true
         );
-        $latitude    = isset($_SESSION[self::$postType]['post_data']['latitude']) ? stripslashes($_SESSION[self::$postType]['post_data']['latitude']) : get_post_meta(
+        $latitude    = isset($_SESSION[self::$postType]['post_data']['latitude']) ? stripslashes(
+            $_SESSION[self::$postType]['post_data']['latitude']
+        ) : get_post_meta(
             $post->ID,
             'latitude',
             true
         );
-        $longitude   = isset($_SESSION[self::$postType]['post_data']['longitude']) ? stripslashes($_SESSION[self::$postType]['post_data']['longitude']) : get_post_meta(
+        $longitude   = isset($_SESSION[self::$postType]['post_data']['longitude']) ? stripslashes(
+            $_SESSION[self::$postType]['post_data']['longitude']
+        ) : get_post_meta(
             $post->ID,
             'longitude',
             true
@@ -343,6 +377,14 @@ class MgEventModel
         wp_nonce_field(plugin_basename(__FILE__), 'location_box_content_nonce');
         include(__DIR__ . '/../views/admin-location-meta-box.php');
     }
+
+    public static function featuredBoxContent($post)
+    {
+        $event_featured = get_post_meta($post->ID, 'event_featured', true);
+        wp_nonce_field(plugin_basename(__FILE__), 'featured_box_content_nonce');
+        include(__DIR__ . '/../views/admin-featured-meta-box.php');
+    }
+
 
     /**
      * Dates Box Content
@@ -407,12 +449,16 @@ class MgEventModel
     {
 
         // get meta values
-        $textDate = isset($_SESSION[self::$postType]['post_data']['text_date']) ? stripslashes($_SESSION[self::$postType]['post_data']['text_date']) : get_post_meta(
+        $textDate = isset($_SESSION[self::$postType]['post_data']['text_date']) ? stripslashes(
+            $_SESSION[self::$postType]['post_data']['text_date']
+        ) : get_post_meta(
             $post->ID,
             'text_date',
             true
         );
-        $textTime = isset($_SESSION[self::$postType]['post_data']['text_time']) ? stripslashes($_SESSION[self::$postType]['post_data']['text_time']) : get_post_meta(
+        $textTime = isset($_SESSION[self::$postType]['post_data']['text_time']) ? stripslashes(
+            $_SESSION[self::$postType]['post_data']['text_time']
+        ) : get_post_meta(
             $post->ID,
             'text_time',
             true
@@ -436,17 +482,23 @@ class MgEventModel
     {
 
         // get meta values
-        $donateLabel   = isset($_SESSION[self::$postType]['post_data']['donate_label']) ? stripslashes($_SESSION[self::$postType]['post_data']['donate_label']) : get_post_meta(
+        $donateLabel    = isset($_SESSION[self::$postType]['post_data']['donate_label']) ? stripslashes(
+            $_SESSION[self::$postType]['post_data']['donate_label']
+        ) : get_post_meta(
             $post->ID,
             'donate_label',
             true
         );
-        $donateUrl     = isset($_SESSION[self::$postType]['post_data']['donate_url']) ? stripslashes($_SESSION[self::$postType]['post_data']['donate_url']) : get_post_meta(
+        $donateUrl      = isset($_SESSION[self::$postType]['post_data']['donate_url']) ? stripslashes(
+            $_SESSION[self::$postType]['post_data']['donate_url']
+        ) : get_post_meta(
             $post->ID,
             'donate_url',
             true
         );
-        $emailRecipient = isset($_SESSION[self::$postType]['post_data']['email_recipient']) ? stripslashes($_SESSION[self::$postType]['post_data']['email_recipient']) : get_post_meta(
+        $emailRecipient = isset($_SESSION[self::$postType]['post_data']['email_recipient']) ? stripslashes(
+            $_SESSION[self::$postType]['post_data']['email_recipient']
+        ) : get_post_meta(
             $post->ID,
             'email_recipient',
             true
@@ -491,6 +543,7 @@ class MgEventModel
     {
         $_SESSION[self::$postType]['post_data'] = $_POST;
         self::locationBoxSave($postId, $_POST);
+        self::featuredBoxSave($postId, $_POST);
         self::datesBoxSave($postId, $_POST);
         self::timesBoxSave($postId, $_POST);
         self::extraInformationBoxSave($postId, $_POST);
@@ -534,6 +587,27 @@ class MgEventModel
     }
 
     /**
+     * Type Box Save
+     *
+     * @param int $postId
+     * @param array $values = array()
+     * @return null
+     */
+    private static function featuredBoxSave($postId, $values = array())
+    {
+        if (self::metaSaveVerifications('featured_box_content_nonce', $postId)) {
+
+            // save values
+            if (isset($values['event_featured'])) {
+                $featured = trim($values['event_featured']);
+                update_post_meta($postId, 'event_featured', true);
+            }else {
+                update_post_meta($postId, 'event_featured', false);
+            }
+        }
+    }
+
+    /**
      * Location Box Save
      *
      * @param int $postId
@@ -544,13 +618,15 @@ class MgEventModel
     {
         if (self::metaSaveVerifications('location_box_content_nonce', $postId)) {
 
-            $locationValidator = new MgEventLocationValidator(array(
-                'venue'     => array('required' => false, 'max_length' => 100),
-                'address1'  => array('required' => false, 'max_length' => 100),
-                'address2'  => array('required' => false, 'max_length' => 100),
-                'latitude'  => array('required' => false, 'max_length' => 20),
-                'longitude' => array('required' => false, 'max_length' => 20),
-            ));
+            $locationValidator = new MgEventLocationValidator(
+                array(
+                    'venue'     => array('required' => false, 'max_length' => 100),
+                    'address1'  => array('required' => false, 'max_length' => 100),
+                    'address2'  => array('required' => false, 'max_length' => 100),
+                    'latitude'  => array('required' => false, 'max_length' => 20),
+                    'longitude' => array('required' => false, 'max_length' => 20),
+                )
+            );
             $locationValidator->bind($values);
 
             if ($locationValidator->isValid()) {
@@ -607,18 +683,20 @@ class MgEventModel
     {
         if (self::metaSaveVerifications('dates_box_content_nonce', $postId)) {
 
-            $datesValidator = new MgEventDatesValidator(array(
-                'start_date' => array(
-                    'required'    => true,
-                    'max_length'  => 10,
-                    'date_format' => '/[0-9]{2,4}\/[0-9]{2}\/[0-9]{2,4}/'
-                ),
-                'end_date'   => array(
-                    'required'    => false,
-                    'max_length'  => 10,
-                    'date_format' => '/[0-9]{2,4}\/[0-9]{2}\/[0-9]{2,4}/'
+            $datesValidator = new MgEventDatesValidator(
+                array(
+                    'start_date' => array(
+                        'required'    => true,
+                        'max_length'  => 10,
+                        'date_format' => '/[0-9]{2,4}\/[0-9]{2}\/[0-9]{2,4}/'
+                    ),
+                    'end_date'   => array(
+                        'required'    => false,
+                        'max_length'  => 10,
+                        'date_format' => '/[0-9]{2,4}\/[0-9]{2}\/[0-9]{2,4}/'
+                    )
                 )
-            ));
+            );
             $datesValidator->bind($values);
 
             if ($datesValidator->isValid()) {
@@ -693,10 +771,12 @@ class MgEventModel
     private static function timesBoxSave($postId, $values = array())
     {
         if (self::metaSaveVerifications('times_box_content_nonce', $postId)) {
-            $timesValidator = new MgEventExtraInformationValidator(array(
-                'text_date' => array('required' => false, 'max_length' => 500),
-                'text_time' => array('required' => false, 'max_length' => 500),
-            ));
+            $timesValidator = new MgEventExtraInformationValidator(
+                array(
+                    'text_date' => array('required' => false, 'max_length' => 500),
+                    'text_time' => array('required' => false, 'max_length' => 500),
+                )
+            );
             $timesValidator->bind($values);
 
             if ($timesValidator->isValid()) {
@@ -726,11 +806,13 @@ class MgEventModel
     private static function extraInformationBoxSave($postId, $values = array())
     {
         if (self::metaSaveVerifications('extra_information_box_content_nonce', $postId)) {
-            $extraInformationValidator = new MgEventExtraInformationValidator(array(
-                'donate_label'   => array('required' => false, 'max_length' => 100),
-                'donate_url'     => array('url' => true),
-                'email_recipient' => array('email' => true)
-            ));
+            $extraInformationValidator = new MgEventExtraInformationValidator(
+                array(
+                    'donate_label'    => array('required' => false, 'max_length' => 100),
+                    'donate_url'      => array('url' => true),
+                    'email_recipient' => array('email' => true)
+                )
+            );
             $extraInformationValidator->bind($values);
 
             if ($extraInformationValidator->isValid()) {
@@ -788,7 +870,7 @@ class MgEventModel
 
             wp_register_script(
                 'mg-events-admin',
-                plugins_url() . "/mg-events/assets/mg-events-admin.js",
+                WPMU_PLUGIN_URL . "/mg-events/assets/mg-events-admin.js",
                 false
             );
             wp_register_script('googlemaps', "//maps.google.com/maps/api/js?sensor=false", false);
