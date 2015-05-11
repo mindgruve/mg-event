@@ -931,6 +931,7 @@ class MgEventModel
             'cb'             => $columns['cb'],
             'title'          => $columns['title'],
             'start_date'     => 'Start Date',
+            'end_date'		 => 'End Date',
             'featured'       => 'Featured',
             'featured_image' => 'Image',
         );
@@ -947,6 +948,14 @@ class MgEventModel
 				$startDate = $startDateUnix ? date('m/d/Y', intval($startDateUnix)) : '';
 				echo $startDate;
                 break;
+                
+            case 'end_date' :
+
+				$endDateUnix = get_post_meta($postId, 'end_date', true);
+				$endDate = $endDateUnix ? date('m/d/Y', intval($endDateUnix)) : '';
+				echo $endDate;
+                break;    
+                
             case 'featured':
             
             	$featured = get_post_meta($postId, 'event_featured', true);
