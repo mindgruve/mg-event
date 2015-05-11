@@ -1,0 +1,18 @@
+{
+    "name": "mingruve/mg-event",
+    "description": "WordPress Plugin to provide events",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Kevin Simpson",
+            "email": "ksimpson@mindgruve.com"
+        },
+        {
+            "name": "Kevin Chevalier",
+            "email": "kchevalier@mindgruve.com"
+        }
+    ],
+    "require": {
+
+    }
+}
