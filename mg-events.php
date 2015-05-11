@@ -64,7 +64,7 @@ if (!class_exists('MgEvents')) {
         {
             if(!class_exists('MgEventModel')){
                 include('models/MgEventModel.php');
-                MgEventModel::init();
+                add_action('init', array('MgEventModel', 'init'));
             }
             do_action('register_wpml_sync_post_type', MgEventModel::$postType, MgEventModel::$multilanguageSyncFields, MgEventModel::$taxonomy);
         }
