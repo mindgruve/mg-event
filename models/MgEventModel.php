@@ -227,6 +227,16 @@ class MgEventModel
      */
     public static function addMetaBoxes()
     {
+    
+    	// add featured box
+        add_meta_box(
+            'featured_box',
+            __(self::$featuredMetaBoxTitle),
+            array('MgEventModel', 'featuredBoxContent'),
+            self::$postType,
+            'normal',
+            'high'
+        );
 
         // add location box
         add_meta_box(
@@ -238,20 +248,10 @@ class MgEventModel
             'high'
         );
 
-        // add featured box
-        add_meta_box(
-            'dates_box',
-            __(self::$featuredMetaBoxTitle),
-            array('MgEventModel', 'featuredBoxContent'),
-            self::$postType,
-            'side',
-            'core'
-        );
-
         // add dates box
         add_meta_box(
-            'featured_box',
-            __(self::$datesMetaBoxTitle),
+            'dates_box',
+            __(self::$datesMetaBoxTitle ),
             array('MgEventModel', 'datesBoxContent'),
             self::$postType,
             'side',
@@ -383,6 +383,7 @@ class MgEventModel
     public static function featuredBoxContent($post)
     {
         $event_featured = get_post_meta($post->ID, 'event_featured', true);
+        $event_featured_title = get_post_meta($post->ID, 'event_featured_title', true);
         wp_nonce_field(plugin_basename(__FILE__), 'featured_box_content_nonce');
         include(__DIR__ . '/../views/admin-featured-meta-box.php');
     }
@@ -606,6 +607,10 @@ class MgEventModel
             }else {
                 update_post_meta($postId, 'event_featured', false);
             }
+                        
+            $featuredTitle = isset($values['event_featured_title']) ? $values['event_featured_title'] : null;
+            update_post_meta($postId, 'event_featured_title', $featuredTitle);
+            
         }
     }
 
