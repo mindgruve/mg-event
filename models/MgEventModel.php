@@ -365,15 +365,18 @@ class MgEventModel
             true
         );
 
-        unset($_SESSION[self::$postType]['post_data']['venue']);
-        unset($_SESSION[self::$postType]['post_data']['address1']);
-        unset($_SESSION[self::$postType]['post_data']['address2']);
-        unset($_SESSION[self::$postType]['post_data']['city']);
-        unset($_SESSION[self::$postType]['post_data']['region']);
-        unset($_SESSION[self::$postType]['post_data']['country']);
-        unset($_SESSION[self::$postType]['post_data']['postal_code']);
-        unset($_SESSION[self::$postType]['post_data']['latitude']);
-        unset($_SESSION[self::$postType]['post_data']['longitude']);
+        if (isset($_SESSION)) {
+            unset($_SESSION[self::$postType]['post_data']['venue']);
+            unset($_SESSION[self::$postType]['post_data']['address1']);
+            unset($_SESSION[self::$postType]['post_data']['address2']);
+            unset($_SESSION[self::$postType]['post_data']['city']);
+            unset($_SESSION[self::$postType]['post_data']['region']);
+            unset($_SESSION[self::$postType]['post_data']['country']);
+            unset($_SESSION[self::$postType]['post_data']['postal_code']);
+            unset($_SESSION[self::$postType]['post_data']['latitude']);
+            unset($_SESSION[self::$postType]['post_data']['longitude']);
+        }
+
 
         // display form
         wp_nonce_field(plugin_basename(__FILE__), 'location_box_content_nonce');
@@ -410,8 +413,10 @@ class MgEventModel
         $startTime     = get_post_meta($post->ID, 'start_time', true);
         $endTime       = get_post_meta($post->ID, 'end_time', true);
 
-        unset($_SESSION[self::$postType]['post_data']['start_date']);
-        unset($_SESSION[self::$postType]['post_data']['end_date']);
+        if (isset($_SESSION)) {
+            unset($_SESSION[self::$postType]['post_data']['start_date']);
+            unset($_SESSION[self::$postType]['post_data']['end_date']);
+        }
 
         // break times up into discrete parts
         $startTimeHour   = null;
@@ -467,8 +472,10 @@ class MgEventModel
             true
         );
 
-        unset($_SESSION[self::$postType]['post_data']['text_date']);
-        unset($_SESSION[self::$postType]['post_data']['text_time']);
+        if (isset($_SESSION)) {
+            unset($_SESSION[self::$postType]['post_data']['text_date']);
+            unset($_SESSION[self::$postType]['post_data']['text_time']);
+        }
 
         // display form
         wp_nonce_field(plugin_basename(__FILE__), 'times_box_content_nonce');
@@ -507,9 +514,11 @@ class MgEventModel
             true
         );
 
-        unset($_SESSION[self::$postType]['post_data']['donate_label']);
-        unset($_SESSION[self::$postType]['post_data']['donate_url']);
-        unset($_SESSION[self::$postType]['post_data']['email_recipient']);
+        if (isset($_SESSION)) {
+            unset($_SESSION[self::$postType]['post_data']['donate_label']);
+            unset($_SESSION[self::$postType]['post_data']['donate_url']);
+            unset($_SESSION[self::$postType]['post_data']['email_recipient']);
+        }
 
         // display form
         wp_nonce_field(plugin_basename(__FILE__), 'extra_information_box_content_nonce');

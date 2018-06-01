@@ -34,11 +34,11 @@ class MgListEventsWidget extends WP_Widget
     /**
      * Constructor
      */
-    function MgListEventsWidget()
+    function __construct()
     {
 
         // create widget
-        $this->WP_Widget(
+        parent::__construct(
             $this->widgetId,
             $this->widgetName,
             array(
