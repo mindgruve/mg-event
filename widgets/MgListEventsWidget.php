@@ -34,7 +34,7 @@ class MgListEventsWidget extends WP_Widget
     /**
      * Constructor
      */
-    function __construct()
+    public function __construct()
     {
 
         // create widget
@@ -62,8 +62,13 @@ class MgListEventsWidget extends WP_Widget
      * @param array $args
      * @param array $instance
      */
-    function widget($args, $instance)
+    public function widget($args, $instance)
     {
+
+        $before_widget = '';
+        $after_widget = '';
+        $before_title = '';
+        $after_title = '';
 
         extract($args);
 
@@ -113,8 +118,9 @@ class MgListEventsWidget extends WP_Widget
      * Instance
      *
      * @param array $instance
+     * @return void
      */
-    function form($instance)
+    public function form($instance)
     {
 
         $defaults = array(
@@ -180,7 +186,7 @@ class MgListEventsWidget extends WP_Widget
      * @param array $old_instance
      * @return array
      */
-    function update($new_instance, $old_instance)
+    public function update($new_instance, $old_instance)
     {
         $instance                     = $old_instance;
         $instance['title']            = $new_instance['title'];
