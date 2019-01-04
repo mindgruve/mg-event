@@ -154,7 +154,6 @@ class MgEventModel
 
     public static function addOptionsPage()
     {
-        wp_nonce_field(plugin_basename(__FILE__), 'location_box_content_nonce');
         add_submenu_page(
             'edit.php?post_type=' . self::$postType,
             'Event Settings',
